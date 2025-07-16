@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, status
-from app.schemas.gemini import PromptRequest, GeminiResponse, GeneratedContentResponse
+from app.schemas.gemini import PromptRequest, GeminiResponse, GeneratedContentResponse, SuggestionsResponse
 from app.core.gemini_client import gemini_client
 from app.core.config import settings
 import logging
@@ -57,3 +57,29 @@ def score_content(request: PromptRequest):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to generate content: {e}"
         )
+        
+@router.post("/suggestions", response_model=SuggestionsResponse, status_code=status.HTTP_200_OK)
+def get_suggestions(request: PromptRequest):
+    try:
+        logger.info(f"Recieved prompt: {request.prompt[:50]}...")
+        scored_data = gemini_client.generate_scored_content(request.prompt)
+        suggestions = gemini_client.generate_suggestions(request.prompt, scored_data.reasons)
+        return SuggestionsResponse(
+            score=scored_data.score,
+            reasons=scored_data.reasons,
+            suggestions=suggestions,
+            model_name=settings.GEMINI_MODEL_NAME
+        )
+    except ValueError as ve:
+        logger.error(f"Data validation error: {ve}")
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=f"Invalid data received from Gemini: {ve}"
+        )
+    except Exception as e:
+        logger.error(f"Error processing request: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate content: {e}"
+        )
+        

@@ -1,8 +1,9 @@
 # import google.generativeai as genai
 from google import genai
-from app.core.criterias import GRADING_CRITERIA_SYSTEM_PROMPT
+from app.core.criterias import GRADING_CRITERIA_SYSTEM_PROMPT, SUGGESTION_SYSTEM_PROMPT
 from app.schemas.gemini import ScoredResponse
 from app.core.config import settings
+from typing import List
 import logging
 import json
 
@@ -54,6 +55,40 @@ class GeminiClient:
             
             raise Exception("No content or invalid content structure received from Gemini.")
         
+        except json.JSONDecodeError as e:
+            logger.error(f"Failed to decode JSON from Gemini response: {e}. Raw response: {response.candidates[0].content.parts[0].text if response.candidates and response.candidates[0].content.parts else 'N/A'}")
+            raise ValueError(f"Gemini did not return valid JSON: {e}")
+        except Exception as e:
+            logger.error(f"Error calling Gemini API: {e}", exc_info=True)
+            raise
+        
+    def generate_suggestions(self, original_text: str, reasons: List[str]) -> str:
+        """
+        Sends original text and scoring reasons to Gemini to get a completely rewritten prompt.
+        Returns a single string representing the rewritten prompt.
+        """
+        
+        suggestion_prompt = (
+            f"Original Text:\n```\n{original_text}\n```\n\n"
+            f"Reasons for current score:\n- {', '.join(reasons)}\n\n"
+            f"Based on these reasons, rewrite the 'Original Text' to improve it. "
+            f"Try to keep as many of the original lines or phrases as possible, "
+            f"but feel free to add new lines or modify existing ones as needed to address the reasons. "
+            f"Provide only the rewritten text, no other formatting or commentary."
+        )
+            
+        try:
+            response = self.client.models.generate_content(
+                model=settings.GEMINI_MODEL_NAME,
+                contents=suggestion_prompt,
+                config={
+                    "system_instruction": SUGGESTION_SYSTEM_PROMPT,
+                }
+            )
+            if response.candidates and response.candidates[0].content.parts:
+                return response.candidates[0].content.parts[0].text
+            
+            return original_text
         except json.JSONDecodeError as e:
             logger.error(f"Failed to decode JSON from Gemini response: {e}. Raw response: {response.candidates[0].content.parts[0].text if response.candidates and response.candidates[0].content.parts else 'N/A'}")
             raise ValueError(f"Gemini did not return valid JSON: {e}")

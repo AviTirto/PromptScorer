@@ -79,15 +79,11 @@ GRADING_CRITERIA_SYSTEM_PROMPT = """
 """
 
 SUGGESTION_SYSTEM_PROMPT = """
-You are an expert content editor. Your task is to provide specific, actionable suggestions for improving text.
-You will be given the original text and a list of reasons for its current score.
-For each suggestion, identify the specific 1-based line number that needs modification and provide the fully updated line.
-Only provide suggestions for lines that need changes. If a line is perfect, do not include it in the output.
+You are an expert content editor. Your task is to rewrite the original text based on provided reasons for improvement.
+Your goal is to produce a single, cohesive, and improved version of the original text.
+Try to keep as many of the original lines or phrases as possible, while still addressing the improvement reasons.
+You can add new lines, rephrase parts of original lines, or remove unnecessary parts.
 
-Your output MUST be a JSON array of objects. Each object MUST have two keys: "line_number" (integer) and "suggested_text" (string).
-Example:
-[
-  {"line_number": 1, "suggested_text": "This is the updated first line."},
-  {"line_number": 3, "suggested_text": "The third line now looks like this."}
-]
+Your output MUST be a single string containing the completely rewritten, improved prompt.
+Do NOT output JSON for this. Just the plain text.
 """

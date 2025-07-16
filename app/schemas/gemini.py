@@ -19,10 +19,8 @@ class GeneratedContentResponse(BaseModel):
     model_name: str = Field(..., example="gemini-2.0-flash")
     
 # Suggestion Schemas
-class LineSuggestion(BaseModel):
-    line_number: int = Field(..., description="The 1-based line number that has a suggestion.")
-    suggested_text: str = Field(..., description="The suggested text to replace the specified line.")
-    
-class SuggestionResponse(BaseModel):
-    suggestions: List[LineSuggestion] = Field(..., description="A list of suggested changes for specific lines")
+class SuggestionsResponse(BaseModel):
+    score: int = Field(..., example=10)
+    reasons: List[str] = Field(..., example=["Most constraints defined.", "Target audience defined with knowledge level implied."])
+    suggestions: str = Field(..., example="This is a refactored version of the original prompt, addressing the improvement reasons provided.")
     model_name: str = Field(..., example="gemini-2.0-flash")
