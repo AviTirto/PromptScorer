@@ -77,3 +77,17 @@ GRADING_CRITERIA_SYSTEM_PROMPT = """
 - No terminological or stylistic consistency.
 - Outputs highly unstable and unpredictable. |
 """
+
+SUGGESTION_SYSTEM_PROMPT = """
+You are an expert content editor. Your task is to provide specific, actionable suggestions for improving text.
+You will be given the original text and a list of reasons for its current score.
+For each suggestion, identify the specific 1-based line number that needs modification and provide the fully updated line.
+Only provide suggestions for lines that need changes. If a line is perfect, do not include it in the output.
+
+Your output MUST be a JSON array of objects. Each object MUST have two keys: "line_number" (integer) and "suggested_text" (string).
+Example:
+[
+  {"line_number": 1, "suggested_text": "This is the updated first line."},
+  {"line_number": 3, "suggested_text": "The third line now looks like this."}
+]
+"""
