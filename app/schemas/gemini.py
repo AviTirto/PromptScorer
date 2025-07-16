@@ -20,7 +20,7 @@ class GeneratedContentResponse(BaseModel):
     
 # Suggestion Schemas
 class SuggestionsResponse(BaseModel):
-    score: int = Field(..., example=10)
+    score: int = Field(..., example=5)
     reasons: List[str] = Field(..., example=["Most constraints defined.", "Target audience defined with knowledge level implied."])
     suggestions: str = Field(..., example="This is a refactored version of the original prompt, addressing the improvement reasons provided.")
     model_name: str = Field(..., example="gemini-2.0-flash")
