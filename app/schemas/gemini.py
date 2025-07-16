@@ -9,8 +9,8 @@ class GeminiResponse(BaseModel):
     model_name: str = Field(..., example="gemini-2.0-flash")
     
 class ScoredResponse(BaseModel):
-    score: int = Field(..., description="Score the prompt based on the criteria. Score should be between 1 and 10.")
-    reasons: List[str] = Field(..., description="List of reasons for the score given to the prompt. 1 reason per criteria.")
+    score: int = Field(..., description="Score the prompt based on the criteria. Score should be between 1 and 5.")
+    reasons: List[str] = Field(..., description="List of reasons for the score given to the prompt. 1 reason per criteria. Give a suggestion based on the prompt for improvement for each criteria.")
     
 class GeneratedContentResponse(BaseModel):
     generated_data: ScoredResponse 
