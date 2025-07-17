@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, status
 from app.schemas.gemini import PromptRequest, GeminiResponse, GeneratedContentResponse, SuggestionsResponse
 from app.core.gemini_client import gemini_client
 from app.core.config import settings
+from app.core.judges.master_judge import master_judge
 import logging
 
 router = APIRouter()
@@ -40,7 +41,7 @@ def score_content(request: PromptRequest):
     """
     try:
         logger.info(f"Recieved prompt: {request.prompt[:50]}...")
-        scored_data = gemini_client.generate_scored_content(request.prompt)
+        scored_data = master_judge(request.prompt)
         return GeneratedContentResponse(
             generated_data=scored_data,
             model_name=settings.GEMINI_MODEL_NAME

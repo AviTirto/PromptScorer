@@ -2,6 +2,7 @@
 from google import genai
 from app.core.criterias import GRADING_CRITERIA_SYSTEM_PROMPT, SUGGESTION_SYSTEM_PROMPT
 from app.schemas.gemini import ScoredResponse
+from app.schemas.gemini import JudgeScoredResponse
 from app.core.config import settings
 from typing import List
 import logging
@@ -33,16 +34,15 @@ class GeminiClient:
         except Exception as e:
             logger.error(f"Error calling Gemini API: {e}")
             raise
-        
-    def generate_scored_content(self, prompt: str) -> ScoredResponse:
+    def generate_scored_content(self, prompt: str, system_instruction: str) -> JudgeScoredResponse:
         try:
             response = self.client.models.generate_content(
                 model=settings.GEMINI_MODEL_NAME,
                 contents=prompt, 
                 config={
-                    "system_instruction": GRADING_CRITERIA_SYSTEM_PROMPT,
+                    "system_instruction": system_instruction,
                     "response_mime_type": "application/json",
-                    "response_schema": ScoredResponse
+                    "response_schema": JudgeScoredResponse
                 }
             )
             
@@ -50,7 +50,7 @@ class GeminiClient:
                 json_string = response.candidates[0].content.parts[0].text
                 logger.info(f"Received raw JSON from Gemini: {json_string}")
                 
-                scored_data = ScoredResponse.model_validate_json(json_string)
+                scored_data = JudgeScoredResponse.model_validate_json(json_string)
                 return scored_data
             
             raise Exception("No content or invalid content structure received from Gemini.")

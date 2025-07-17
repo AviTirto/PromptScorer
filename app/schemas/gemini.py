@@ -9,7 +9,11 @@ class GeminiResponse(BaseModel):
     response_text: str = Field(..., example="The capital of France is Paris.")
     model_name: str = Field(..., example="gemini-2.0-flash")
 
-# Scoring Schemas  
+# Scoring Schemas
+class JudgeScoredResponse(BaseModel):
+    score: int = Field(..., description="The score assigned by the judge, ranging from 0 to 100.")
+    reason: str = Field(..., description="A concise justification for the assigned score, specific to the evaluated criterion.")
+
 class ScoredResponse(BaseModel):
     score: int = Field(..., description="Score the prompt based on the criteria. Score should be between 1 and 5.")
     reasons: List[str] = Field(..., description="List of reasons for the score given to the prompt. 1 reason per criteria. Give a suggestion based on the prompt for improvement for each criteria.")
